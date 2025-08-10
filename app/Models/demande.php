@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class demande extends Model
 {
     use HasFactory;
-        protected $fillable = ['id','raison','dateDemande','dateSortie','dateRetour','statutId','emailEmployee'];
+        protected $fillable = ['id','raison','dateDemande','dateSortie','dateSortiePause','dateRetour','statutId','emailEmployee'];
 
 }

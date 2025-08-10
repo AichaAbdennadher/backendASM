@@ -26,7 +26,9 @@ public function store(Request $request) //ajout d'une demande
             'dateDemande' => $request->input('dateDemande'),
             'dateSortie' => $request->input('dateSortie'),
             'dateRetour' => $request->input('dateRetour'),
-            'statutId' => $request->input('statutId')
+            'statutId' => $request->input('statutId'),
+            'emailEmployee' => $request->input('emailEmployee'),
+            'dateSortiePause' => $request->input('dateSortiePause'),
         ]);
 
         $demande->save();
