@@ -11,15 +11,19 @@ class StatutController extends Controller
      * Display a listing of the resource.
      */
     
-    public function index()//liste des statuts
-    {
-         try { 
-          $statuts=Statut::all(); 
-        return response()->json($statuts); 
-             } 
-catch (\Exception $e) { 
-return response()->json("probleme de récupération de la liste des status"); }
+ public function index(Request $request)
+{
+    try {
+        $statuts = Statut::paginate(5); // 5 statuts par page
+        return response()->json($statuts);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Problème de récupération de la liste des statuts',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     /**
      * Store a newly created resource in storage.

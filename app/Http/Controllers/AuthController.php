@@ -13,8 +13,7 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string',
-                        'familyName'     => 'required|string',
-
+            'familyName'     => 'required|string',
             'email'    => 'required|email|unique:users',
             'password' => 'required|string|min:6',
             'job'      => 'required|string'
@@ -22,8 +21,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'name'     => $validated['name'],
-                        'familyName'     => $validated['familyName'],
-
+            'familyName'     => $validated['familyName'],
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
             'job'      => $validated['job'],
@@ -37,29 +35,29 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required'
-            
-        ]);
+  public function login(Request $request)
+{
+    $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required'
+    ]);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Les informations d’identification sont incorrectes.'],
-            ]);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+    if (!$user || !Hash::check($request->password, $user->password)) {
         return response()->json([
-            'user'  => $user,
-            'token' => $token,
-        ]);
+            'message' => 'Les informations d’identification sont incorrectes.'
+        ], 401);
     }
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'user'  => $user,
+        'token' => $token,
+    ]);
+}
+
 
     public function logout(Request $request)
     {
@@ -69,4 +67,6 @@ class AuthController extends Controller
             'message' => 'Déconnexion réussie',
         ]);
     }
+
+
 }
