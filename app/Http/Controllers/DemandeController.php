@@ -18,7 +18,7 @@ class DemandeController extends Controller
         ], 500);
     }
 }
-public function store(Request $request) //ajout d'une demande
+public function store(Request $request)
 {
     try {
         $demande = new Demande([
@@ -26,16 +26,20 @@ public function store(Request $request) //ajout d'une demande
             'dateDemande' => $request->input('dateDemande'),
             'dateSortie' => $request->input('dateSortie'),
             'dateRetour' => $request->input('dateRetour'),
-            'statutId' => $request->input('statutId'),
+    'statutId' => $request->input('statutId', 1), // valeur par défaut = 1
             'emailEmployee' => $request->input('emailEmployee'),
             'dateSortiePause' => $request->input('dateSortiePause'),
         ]);
 
         $demande->save();
 
-        return response()->json($demande);
+        return response()->json($demande, 201);
     } catch (\Exception $e) {
-        return response()->json('Insertion impossible');
+        return response()->json([
+            'message' => 'Insertion impossible',
+            'error' => $e->getMessage(),
+        ], 500);
     }
 }
+
 }
