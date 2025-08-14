@@ -20,7 +20,7 @@ public function up(): void
         $table->date('dateDemande');           // Juste la date
         $table->time('dateSortie');            // Juste l'heure
         $table->date('dateSortiePause');       // Juste la date
-        $table->time('dateRetour');            // Juste l'heure (si pas besoin de date)
+        $table->time('dateRetour');           
       
 
         $table->unsignedBigInteger('statutId');

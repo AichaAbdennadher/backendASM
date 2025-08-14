@@ -9,6 +9,18 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+     public function index(Request $request)
+{
+    try {
+        $users = User::where('role', 1)->paginate(5); // filtrer role=1
+        return response()->json($users);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Problème de récupération de la liste des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
      public function register(Request $request)
     {
         $validated = $request->validate([
