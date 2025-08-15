@@ -86,5 +86,52 @@ public function store(Request $request)
     }
 }
 
+    public function destroy( $id) {
+    {
+            try { 
+$statut=Demande::findOrFail($id); 
+$statut->delete(); 
+return response()->json("statut supprimée avec succes"); 
+} catch (\Exception $e) { 
+return response()->json("probleme de suppression de Staut"); 
+} 
+} 
+    }
 
+//        public function update(Request $request, $id) {
+//     {
+//         try { 
+// $statut=Demande::findorFail($id); 
+// $statut->update($request->all()); 
+// return response()->json($statut); 
+// } catch (\Exception $e) { 
+// return response()->json("probleme de modification"); 
+// } 
+//     }
+//     }
+ public function updateStatut(Request $request, $id)
+    {
+        // Validation
+        $request->validate([
+            'statutId' => 'required|integer|exists:statuts,id',
+        ]);
+
+        // Récupérer la demande
+        $demande = Demande::find($id);
+
+        if (!$demande) {
+            return response()->json([
+                'message' => 'Demande non trouvée.'
+            ], 404);
+        }
+
+        // Mettre à jour le statut
+        $demande->statutId = $request->statutId;
+        $demande->save();
+
+        return response()->json([
+            'message' => 'Statut mis à jour avec succès.',
+            'demande' => $demande
+        ]);
+    }
 }

@@ -31,6 +31,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/users', [AuthController::class, 'index']);
+Route::put('/demandes/{id}/statut', [DemandeController::class, 'updateStatut']);
 
 
 
