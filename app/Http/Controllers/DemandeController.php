@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\demande;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DemandeController extends Controller
 {
@@ -134,4 +135,368 @@ return response()->json("probleme de suppression de Staut");
             'demande' => $demande
         ]);
     }
+    public function countDemandes()
+    {
+        try {
+            // Récupérer le nombre total de demandes
+            $count = Demande::count();
+
+            return response()->json([
+                'success' => true,
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du comptage des demandes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function countDemandesAccept()
+{
+    try {
+        // Récupérer le nombre de demandes avec statutId = 2
+        $count = Demande::where('statutId', 2)->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+    public function countDemandesRefuse()
+{
+    try {
+        $count = Demande::where('statutId', 3)->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function countDemandesPerMonth()
+{
+    try {
+        // Récupérer les demandes groupées par mois pour l'année en cours
+        $year = Carbon::now()->year;
+
+        $counts = Demande::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereYear('created_at', $year)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->orderBy('month')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes par mois',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function demandesParSemaineMois()
+{
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth   = Carbon::now()->endOfMonth();
+
+    $demandes = DB::table('demandes')
+        ->selectRaw('FLOOR((DAY(created_at) - 1) / 7) + 1 as week_in_month, COUNT(*) as total')
+        ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+        ->groupBy('week_in_month')
+        ->orderBy('week_in_month')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $demandes
+    ]);
+}
+
+public function countAcceptedDemandesPerMonth()
+{
+    try {
+        $year = Carbon::now()->year;
+
+        $counts = Demande::select(
+                DB::raw('MONTH(dateDemande) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereYear('dateDemande', $year)
+            ->where('statutId', 2) // 2 = accepté
+            ->groupBy(DB::raw('MONTH(dateDemande)'))
+            ->orderBy('month')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes acceptées par mois',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function countRefusedDemandesPerMonth()
+{
+    try {
+        $year = Carbon::now()->year;
+
+        $counts = Demande::select(
+                DB::raw('MONTH(dateDemande) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereYear('dateDemande', $year)
+            ->where('statutId', 3) // 3 = refusé
+            ->groupBy(DB::raw('MONTH(dateDemande)'))
+            ->orderBy('month')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes refusées par mois',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function getLastDemandes()
+{
+    try {
+        $demandes = Demande::orderBy('created_at', 'desc') // tri du plus récent au plus ancien
+                          ->take(5) // prendre uniquement 5
+                          ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $demandes
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la récupération des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+///dashboard employée
+public function countDemandesForUser()
+{
+    try {
+        $email = auth()->user()->email; // 
+        $count = Demande::where('emailEmployee', $email)->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function countDemandesAcceptForUser()
+{
+    try {
+        $email = auth()->user()->email;
+        $count = Demande::where('emailEmployee', $email)->where('statutId', 2)->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes acceptées',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function countDemandesRefuseForUser()
+{
+    try {
+        $email = auth()->user()->email;
+        $count = Demande::where('emailEmployee', $email)->where('statutId', 3)->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes refusées',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function countDemandesPerMonthForUser()
+{
+    try {
+        $email = auth()->user()->email;
+        $year = Carbon::now()->year;
+
+        $counts = Demande::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->where('emailEmployee', $email)
+            ->whereYear('created_at', $year)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->orderBy('month')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes par mois',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function demandesParSemaineMoisForUser()
+{
+    $email = auth()->user()->email;
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth   = Carbon::now()->endOfMonth();
+
+    $demandes = DB::table('demandes')
+        ->selectRaw('FLOOR((DAY(created_at) - 1) / 7) + 1 as week_in_month, COUNT(*) as total')
+        ->where('emailEmployee', $email)
+        ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+        ->groupBy('week_in_month')
+        ->orderBy('week_in_month')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $demandes
+    ]);
+}
+
+public function countAcceptedDemandesPerMonthForUser()
+{
+    try {
+        $email = auth()->user()->email;
+        $year = Carbon::now()->year;
+
+        $counts = Demande::select(
+                DB::raw('MONTH(dateDemande) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->where('emailEmployee', $email)
+            ->whereYear('dateDemande', $year)
+            ->where('statutId', 2)
+            ->groupBy(DB::raw('MONTH(dateDemande)'))
+            ->orderBy('month')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes acceptées par mois',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function countRefusedDemandesPerMonthForUser()
+{
+    try {
+        $email = auth()->user()->email;
+        $year = Carbon::now()->year;
+
+        $counts = Demande::select(
+                DB::raw('MONTH(dateDemande) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->where('emailEmployee', $email)
+            ->whereYear('dateDemande', $year)
+            ->where('statutId', 3)
+            ->groupBy(DB::raw('MONTH(dateDemande)'))
+            ->orderBy('month')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des demandes refusées par mois',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function getLastDemandesForUser()
+{
+    try {
+        $email = auth()->user()->email;
+        $demandes = Demande::where('emailEmployee', $email)
+                          ->orderBy('created_at', 'desc')
+                          ->take(5)
+                          ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $demandes
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la récupération des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

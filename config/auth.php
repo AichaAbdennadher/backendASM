@@ -70,6 +70,11 @@ return [
         //     'table' => 'users',
         // ],
     ],
+       'api' => [
+        'driver' => 'sanctum',  // ou 'token' si tu utilises Laravel token
+        'provider' => 'users',
+        'hash' => false,
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -79,6 +79,22 @@ class AuthController extends Controller
             'message' => 'Déconnexion réussie',
         ]);
     }
+   public function countUsers()
+{
+    try {
+        $count = User::count() - 1; // exclure l'admin
 
-
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du comptage des utilisateurs',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
+}
+
