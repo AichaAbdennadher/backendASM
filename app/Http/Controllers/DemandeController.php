@@ -20,6 +20,8 @@ class DemandeController extends Controller
         ], 500);
     }
 }
+
+
 public function store(Request $request)
 {
     try {
@@ -82,6 +84,18 @@ public function store(Request $request)
     } catch (\Exception $e) {
         return response()->json([
             'message' => 'Insertion impossible',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function getPendingDemande()
+{
+    try {
+        $demandes = Demande::where('statutId', 1)->get(); // 1 = en attente
+        return response()->json($demandes);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Impossible de récupérer les demandes',
             'error' => $e->getMessage()
         ], 500);
     }
@@ -291,7 +305,7 @@ public function getLastDemandes()
 {
     try {
         $demandes = Demande::orderBy('created_at', 'desc') // tri du plus récent au plus ancien
-                          ->take(5) // prendre uniquement 5
+                          ->take(7) // prendre uniquement 5
                           ->get();
 
         return response()->json([
@@ -499,4 +513,19 @@ public function getLastDemandesForUser()
     }
 }
 
+public function DemandesForUser(Request $request)
+{
+    try {
+              $email = auth()->user()->email; 
+        // Récupérer les demandes de l'utilisateur connecté via son email
+        $statuts = demande::where('emailEmployee', $email)->paginate(5);
+
+        return response()->json($statuts);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Problème de récupération de la liste des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }
