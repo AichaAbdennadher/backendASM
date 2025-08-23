@@ -35,6 +35,8 @@ Route::get('/demandes/count/week', [DemandeController::class, 'demandesParSemain
 Route::get('/demandes/count-per-month-accepted', [DemandeController::class, 'countAcceptedDemandesPerMonth']);
 Route::get('/demandes/count-per-month-refused', [DemandeController::class, 'countRefusedDemandesPerMonth']);
 Route::get('/demandes/last', [DemandeController::class, 'getLastDemandes']);
+Route::get('/demandes/pending', [DemandeController::class, 'getPendingDemande'])
+     ->middleware('throttle:1000,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/demandes/emp', [DemandeController::class, 'DemandesForUser']);

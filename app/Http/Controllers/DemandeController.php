@@ -5,7 +5,8 @@ use App\Models\demande;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\DemandeBreakMail;
 class DemandeController extends Controller
 {
  public function index(Request $request)
@@ -78,7 +79,8 @@ public function store(Request $request)
 
         // 🔹 Tout OK → sauvegarde
         $demande->save();
-
+// ✅ Envoi d’un email à l’admin
+        Mail::to("abdennadheraicha19@gmail.com")->send(new DemandeBreakMail($demande));
         return response()->json($demande, 201);
 
     } catch (\Exception $e) {
@@ -516,11 +518,25 @@ public function getLastDemandesForUser()
 public function DemandesForUser(Request $request)
 {
     try {
-              $email = auth()->user()->email; 
-        // Récupérer les demandes de l'utilisateur connecté via son email
-        $statuts = demande::where('emailEmployee', $email)->paginate(5);
+        // Récupérer l'utilisateur connecté
+        $user = auth()->user();
 
-        return response()->json($statuts);
+        if (!$user) {
+            return response()->json([
+                'message' => 'Utilisateur non authentifié'
+            ], 401);
+        }
+
+        // Récupérer les demandes liées à son email
+        $demandes = Demande::where('emailEmployee', $user->email)
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
+
+        return response()->json([
+            'success' => true,
+            'demandes' => $demandes
+        ], 200);
+
     } catch (\Exception $e) {
         return response()->json([
             'message' => 'Problème de récupération de la liste des demandes',
@@ -528,4 +544,5 @@ public function DemandesForUser(Request $request)
         ], 500);
     }
 }
+
 }
