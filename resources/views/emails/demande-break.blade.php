@@ -1,12 +1,13 @@
-<x-mail::message>
-# Introduction
+@component('mail::message')
+# New pause request
 
-The body of your message.
-
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+Reason : {{ $demande->raison }}  
+Release date : {{ $demande->dateSortiePause }}  
+Release time : {{ $demande->dateSortie }}  
+Return time : {{ $demande->dateRetour }}  
 
 Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+{{ $demande->emailEmployee  }}
+@endcomponent
+
+

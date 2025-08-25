@@ -26,6 +26,7 @@ class DemandeController extends Controller
 public function store(Request $request)
 {
     try {
+        // Création de la demande
         $demande = new Demande([
             'raison' => $request->input('raison'),
             'dateDemande' => $request->input('dateDemande'),
@@ -79,8 +80,10 @@ public function store(Request $request)
 
         // 🔹 Tout OK → sauvegarde
         $demande->save();
-// ✅ Envoi d’un email à l’admin
+
+        // ✅ Envoi d’un email à l’admin via Markdown
         Mail::to("abdennadheraicha19@gmail.com")->send(new DemandeBreakMail($demande));
+
         return response()->json($demande, 201);
 
     } catch (\Exception $e) {
