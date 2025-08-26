@@ -12,7 +12,7 @@ class DemandeController extends Controller
  public function index(Request $request)
 {
     try {
-        $statuts = demande::paginate(5); // 5 demandes par page
+        $statuts = demande::paginate(8); // 5 demandes par page
         return response()->json($statuts);
     } catch (\Exception $e) {
         return response()->json([
@@ -533,7 +533,37 @@ public function DemandesForUser(Request $request)
         // Récupérer les demandes liées à son email
         $demandes = Demande::where('emailEmployee', $user->email)
             ->orderBy('created_at', 'desc')
-            ->paginate(5);
+            ->paginate(8);
+
+        return response()->json([
+            'success' => true,
+            'demandes' => $demandes
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Problème de récupération de la liste des demandes',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function DemandesForUserNotif(Request $request)
+{
+    try {
+        // Récupérer l'utilisateur connecté
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Utilisateur non authentifié'
+            ], 401);
+        }
+
+        // Récupérer les demandes liées à son email avec statut 2 ou 3
+        $demandes = Demande::where('emailEmployee', $user->email)
+            ->whereIn('statutId', [2, 3]) // uniquement accepté ou refusé
+            ->orderBy('created_at', 'desc')
+            ->paginate(8);
 
         return response()->json([
             'success' => true,

@@ -40,6 +40,8 @@ Route::get('/demandes/pending', [DemandeController::class, 'getPendingDemande'])
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/demandes/emp', [DemandeController::class, 'DemandesForUser']);
+    Route::get('/demandes/emp/notif', [DemandeController::class, 'DemandesForUserNotif']);
+
     Route::get('/employe/demandes/count', [DemandeController::class, 'countDemandesForUser']);
     Route::get('/employe/demandes/count/accepte', [DemandeController::class, 'countDemandesAcceptForUser']);
     Route::get('/employe/demandes/count/refuse', [DemandeController::class, 'countDemandesRefuseForUser']);
