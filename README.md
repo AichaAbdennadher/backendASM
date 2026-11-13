@@ -4,7 +4,6 @@
 
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![License](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 
 ## Sommaire
 
@@ -228,6 +227,4 @@ Lancer la suite PHPUnit :
 php artisan test
 ```
 
-## Licence
 
-Ce projet est distribué sous licence MIT.
